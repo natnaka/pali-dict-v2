@@ -1,0 +1,16 @@
+# Basic
+Flask
+Flask-Script
+Flask-Sqlalchemy==2.1
+Flask-Migrate
+
+# Database
+mysql-connector-python-rf
+
+# Utils
+pytest
+factory_boy==2.10.0
+requests
+
+# Deploy
+gunicorn
