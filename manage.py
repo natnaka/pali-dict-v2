@@ -20,7 +20,7 @@ manager.add_command('shell', Shell(make_context=_make_shell_context))
 @manager.option("--host", "-h", dest="bind", default='0.0.0.0')
 def run(port, bind):
     """Run app"""
-    app.run(port=port, host=bind)
+    app.run(port=int(port), host=bind)
 
 @manager.command
 def create_db():
