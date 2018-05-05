@@ -31,6 +31,55 @@ def drop_db():
     db.drop_all()
 
 @manager.option("--file", "-f", dest="f", default=None)
+def load_the_pali(f):
+    if not os.path.isfile(f):
+        print("%s is not valid file.")
+        return
+
+    import csv
+    data = {}
+    with open(f) as csvfile:
+        reader = csv.reader(csvfile)
+        header = None
+        #i = 0
+        for row in reader:
+            if not header:
+                header = [c.strip().lower() for c in row]
+                print("header = ", header)
+                continue
+
+            #print("row = ", row)
+
+            d = dict(zip(header, row))
+            #print("dict = ", d)
+
+            data.setdefault(int(d['id']), []).append(d)
+
+    total = len(data)
+    print("Record count = %d" %total)
+
+    sorted_ids = sorted(data.keys())
+    for i in sorted_ids:
+        l = data[i]
+        if len(l) > 1:
+            print("id = %d has %d records" %(i, len(l)))
+        for r in l:
+            r.pop('id')
+            o = models.ThePali(**r)
+            db.session.add(o)
+        if len(db.session.new) >= 500:
+            print("Insert %d records" %len(db.session.new))
+            db.session.commit()
+
+    if len(db.session.new) > 0:
+        print("Insert %d records" %len(db.session.new))
+        db.session.commit()
+
+    print("Finished")
+ 
+
+ 
+@manager.option("--file", "-f", dest="f", default=None)
 def load_tware_pali(f):
     if not os.path.isfile(f):
         print("%s is not valid file.")

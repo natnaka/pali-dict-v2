@@ -1,6 +1,7 @@
 # encoding: utf-8
 from flask import Blueprint, jsonify
 from application.models import TwarePaliWord
+from application.models import ThePali
 
 bp = Blueprint('pali_controller', __name__, url_prefix='/pali')
 
@@ -13,5 +14,17 @@ def meaning(word):
         meaning = {}
         for col in r.__table__.columns:
             meaning[col.name] = getattr(r, col.name)
-        d['meaning'] = meaning
+        d['tware_meaning'] = meaning
+
+    rs = ThePali.query.filter_by(word=word).order_by(ThePali.freq.desc()).all()
+    if rs:
+        d['success'] = True
+        means = []
+        for r in rs:
+            meaning = {}
+            for col in r.__table__.columns:
+                meaning[col.name] = getattr(r, col.name)
+            means.append(meaning)
+        d['the_pali_meaning'] = means
+        
     return jsonify(d)
