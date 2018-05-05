@@ -5,7 +5,7 @@ from datetime import datetime
 class TwarePaliWord(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
-    word = db.Column(db.String(64), nullable=False)
+    word = db.Column(db.String(64), nullable=False, index=True)
     mean = db.Column(db.String(256))
     word_type = db.Column(db.String(64))
     gender = db.Column(db.String(64))
