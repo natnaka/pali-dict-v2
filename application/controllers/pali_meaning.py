@@ -8,8 +8,12 @@ bp = Blueprint('pali_controller', __name__, url_prefix='/pali')
 
 @bp.route('/meaning/<word>', methods=['GET'])
 def meaning(word):
-    similar = int(request.args.get('similarity', 60))/100.0
-    print("similar = ", similar)
+    try:
+        similar = int(request.args.get('similarity', 60))/100.0
+        limit = int(request.args.get('limit', 5))
+    except:
+        similar = 0.6
+        limit = 5
 
     r = TwarePaliWord.query.filter_by(word=word).first()
     d = dict(success=False)
@@ -35,8 +39,7 @@ def meaning(word):
         # Find similar word
         n = int(math.ceil(len(word) * similar))
         prefix = word[:n]
-        print("Find similar word! [%s]" %prefix)
-        rs = TwarePaliWord.query.filter(TwarePaliWord.word.startswith(prefix)).all()
+        rs = TwarePaliWord.query.filter(TwarePaliWord.word.startswith(prefix)).limit(limit).all()
         
         means = []
         for r in rs:
