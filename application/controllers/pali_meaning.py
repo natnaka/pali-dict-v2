@@ -3,6 +3,7 @@ import math
 from flask import Blueprint, jsonify, request
 from application.models import TwarePaliWord
 from application.models import ThePali
+from application.models import ThePaliCompact
 
 bp = Blueprint('pali_controller', __name__, url_prefix='/pali')
 
@@ -24,16 +25,13 @@ def meaning(word):
             meaning[col.name] = getattr(r, col.name)
         d['tware_meaning'] = meaning
 
-    rs = ThePali.query.filter_by(word=word).order_by(ThePali.freq.desc()).all()
-    if rs:
+    r = ThePaliCompact.query.filter_by(word=word).first()
+    if r:
         d['success'] = True
-        means = []
-        for r in rs:
-            meaning = {}
-            for col in r.__table__.columns:
-                meaning[col.name] = getattr(r, col.name)
-            means.append(meaning)
-        d['the_pali_meaning'] = means
+        meaning = {}
+        for col in r.__table__.columns:
+            meaning[col.name] = getattr(r, col.name)
+        d['the_pali_meaning'] = meaning
 
     if not d['success']:
         # Find similar word
@@ -47,7 +45,16 @@ def meaning(word):
             for col in r.__table__.columns:
                 meaning[col.name] = getattr(r, col.name)
             means.append(meaning)
-        d['similar_words'] = means
+        d['tware_similar_words'] = means
+
+        rs = ThePaliCompact.query.filter(ThePaliCompact.word.startswith(prefix)).limit(limit).all()
+        means = []
+        for r in rs:
+            meaning = {}
+            for col in r.__table__.columns:
+                meaning[col.name] = getattr(r, col.name)
+            means.append(meaning)
+        d['the_pali_similar_words'] = means
         
     return jsonify(d)
 
