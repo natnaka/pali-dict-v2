@@ -30,6 +30,30 @@ def create_db():
 def drop_db():
     db.drop_all()
 
+
+@manager.command
+def group_the_pali_word():
+    rs = models.ThePali.query.all()
+    words = {}
+    for r in rs:
+        words.setdefault(r.word, []).append(r.mean)
+    print("Word count = %d" %len(words))
+
+    for w in words:
+        m = ', '.join(words[w])
+        o = models.ThePaliCompact(word=w, mean=m)
+        db.session.add(o)
+        if len(db.session.new) >= 500:
+            print("Insert %d records" %len(db.session.new))
+            db.session.commit()
+
+    if len(db.session.new) > 0:
+        print("Insert %d records" %len(db.session.new))
+        db.session.commit()
+
+    print("Finished")
+
+
 @manager.option("--file", "-f", dest="f", default=None)
 def load_the_pali(f):
     if not os.path.isfile(f):
